@@ -1,0 +1,104 @@
+{
+    "dataset": [
+        {
+            "category": "Cirrhosis Basics",
+            "question": "What is liver cirrhosis?",
+            "answer": "Cirrhosis is scarring in the liver due to liver disease. It occurs when liver diseases cause inflammation, leading to fibrosis. When fibrosis becomes severe, cirrhosis develops. A liver with cirrhosis is hard, bumpy, and often shrinks."
+        },
+        {
+            "category": "Cirrhosis Basics",
+            "question": "What does the liver do?",
+            "answer": "The liver has many functions, including making bile for digestion, producing proteins like albumin and clotting factors, detoxifying blood, storing vitamins and minerals, and regulating blood sugar levels."
+        },
+        {
+            "category": "Cirrhosis Basics",
+            "question": "What are the causes of cirrhosis?",
+            "answer": "Cirrhosis can be caused by chronic hepatitis B or C, excessive alcohol consumption, fatty liver disease, autoimmune liver disorders, genetic conditions, and exposure to toxins."
+        },
+        {
+            "category": "Cirrhosis Basics",
+            "question": "Can cirrhosis be reversed?",
+            "answer": "Early-stage cirrhosis may be slowed or even slightly improved if the underlying cause is treated, such as stopping alcohol or treating hepatitis. However, advanced cirrhosis is generally not reversible."
+        },
+        {
+            "category": "Treating Decompensated Cirrhosis",
+            "question": "What are the symptoms of decompensated cirrhosis?",
+            "answer": "Symptoms include jaundice, swelling in the abdomen (ascites), confusion due to toxin buildup (hepatic encephalopathy), severe fatigue, and increased risk of infections."
+        },
+        {
+            "category": "Treating Decompensated Cirrhosis",
+            "question": "How is ascites managed?",
+            "answer": "Ascites is managed by reducing salt intake, using diuretics, draining excess fluid via paracentesis, or in severe cases, undergoing a TIPS procedure to improve blood flow."
+        },
+        {
+            "category": "Treating Decompensated Cirrhosis",
+            "question": "What causes hepatic encephalopathy?",
+            "answer": "Hepatic encephalopathy occurs when toxins like ammonia build up in the blood due to poor liver function, leading to confusion, mood changes, poor concentration, and in severe cases, coma."
+        },
+        {
+            "category": "Treating Decompensated Cirrhosis",
+            "question": "How is hepatic encephalopathy treated?",
+            "answer": "Treatment includes lactulose to remove toxins through bowel movements, rifaximin to reduce gut bacteria that produce ammonia, and avoiding sedative medications."
+        },
+        {
+            "category": "Nutrition Therapy",
+            "question": "What foods should be avoided with cirrhosis?",
+            "answer": "Avoid high-sodium foods such as processed meats, canned soups, fast food, and salty snacks. Also, limit alcohol and unhealthy fats."
+        },
+        {
+            "category": "Nutrition Therapy",
+            "question": "Why is protein important for cirrhosis patients?",
+            "answer": "Protein helps prevent muscle loss, supports immune function, and helps the body manage toxins. Cirrhosis patients should consume 1g of protein per kg of body weight daily."
+        },
+        {
+            "category": "Nutrition Therapy",
+            "question": "What is a good diet plan for cirrhosis?",
+            "answer": "A good diet includes lean proteins, fresh fruits and vegetables, whole grains, and low-sodium foods. Frequent small meals and high-protein snacks are also recommended."
+        },
+        {
+            "category": "Nutrition Therapy",
+            "question": "Should cirrhosis patients take supplements?",
+            "answer": "Doctors may recommend vitamin and mineral supplements like vitamin D, B12, and zinc if deficiencies are present. Always consult a doctor before taking supplements."
+        },
+        {
+            "category": "Liver Cancer",
+            "question": "What is hepatocellular carcinoma (HCC)?",
+            "answer": "HCC is a primary liver cancer that often occurs in patients with cirrhosis. It is diagnosed through imaging tests like ultrasound, CT scans, and blood tests for AFP."
+        },
+        {
+            "category": "Liver Cancer",
+            "question": "How is liver cancer treated?",
+            "answer": "Treatment depends on the stage and may include surgery, liver transplant, targeted therapy, immunotherapy, or procedures like radiofrequency ablation to destroy cancer cells."
+        },
+        {
+            "category": "Liver Cancer",
+            "question": "How can liver cancer be prevented?",
+            "answer": "Reducing alcohol intake, managing hepatitis B/C, maintaining a healthy weight, and undergoing regular screenings can help prevent liver cancer."
+        },
+        {
+            "category": "Liver Cancer",
+            "question": "Why is early detection of HCC important?",
+            "answer": "HCC is more treatable when detected early. Screening every 6 months with ultrasound and blood tests helps catch it at an earlier, more manageable stage."
+        },
+        {
+            "category": "Caregiver Guide",
+            "question": "What should caregivers monitor in cirrhosis patients?",
+            "answer": "Caregivers should track weight, watch for confusion (signs of hepatic encephalopathy), monitor medication intake, and ensure a proper diet."
+        },
+        {
+            "category": "Caregiver Guide",
+            "question": "How should caregivers assist with medication?",
+            "answer": "Caregivers should help patients take their medications correctly, watch for side effects, and communicate with doctors about any issues."
+        },
+        {
+            "category": "Caregiver Guide",
+            "question": "What signs indicate a medical emergency?",
+            "answer": "Emergency signs include severe confusion, vomiting blood, black tarry stools, difficulty breathing, or sudden severe pain. Immediate medical attention is required."
+        },
+        {
+            "category": "Caregiver Guide",
+            "question": "How can caregivers support cirrhosis patients emotionally?",
+            "answer": "Providing emotional support, encouraging healthy habits, and helping patients maintain a positive outlook can improve their quality of life."
+        }
+    ]
+}

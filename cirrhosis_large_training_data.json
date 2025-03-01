@@ -1,0 +1,42 @@
+[
+    {
+        "input": "question: What is liver cirrhosis?",
+        "output": "Cirrhosis is scarring in the liver due to liver disease. It occurs when liver diseases cause inflammation, leading to fibrosis. When fibrosis becomes severe, cirrhosis develops. A liver with cirrhosis is hard, bumpy, and often shrinks."
+    },
+    {
+        "input": "question: What does the liver do?",
+        "output": "The liver has many functions, including making bile for digestion, producing proteins like albumin and clotting factors, detoxifying blood, storing vitamins and minerals, and regulating blood sugar levels."
+    },
+    {
+        "input": "question: What are the causes of cirrhosis?",
+        "output": "Cirrhosis can be caused by chronic hepatitis B or C, excessive alcohol consumption, fatty liver disease, autoimmune liver disorders, genetic conditions, and exposure to toxins."
+    },
+    {
+        "input": "question: Can cirrhosis be reversed?",
+        "output": "Early-stage cirrhosis may be slowed or even slightly improved if the underlying cause is treated, such as stopping alcohol or treating hepatitis. However, advanced cirrhosis is generally not reversible."
+    },
+    {
+        "input": "question: What are the symptoms of decompensated cirrhosis?",
+        "output": "Symptoms include jaundice, swelling in the abdomen (ascites), confusion due to toxin buildup (hepatic encephalopathy), severe fatigue, and increased risk of infections."
+    },
+    {
+        "input": "question: How is ascites managed?",
+        "output": "Ascites is managed by reducing salt intake, using diuretics, draining excess fluid via paracentesis, or in severe cases, undergoing a TIPS procedure to improve blood flow."
+    },
+    {
+        "input": "question: What causes hepatic encephalopathy?",
+        "output": "Hepatic encephalopathy occurs when toxins like ammonia build up in the blood due to poor liver function, leading to confusion, mood changes, poor concentration, and in severe cases, coma."
+    },
+    {
+        "input": "question: How is hepatic encephalopathy treated?",
+        "output": "Treatment includes lactulose to remove toxins through bowel movements, rifaximin to reduce gut bacteria that produce ammonia, and avoiding sedative medications."
+    },
+    {
+        "input": "question: What foods should be avoided with cirrhosis?",
+        "output": "Avoid high-sodium foods such as processed meats, canned soups, fast food, and salty snacks. Also, limit alcohol and unhealthy fats."
+    },
+    {
+        "input": "question: Why is protein important for cirrhosis patients?",
+        "output": "Protein helps prevent muscle loss, supports immune function, and helps the body manage toxins. Cirrhosis patients should consume 1g of protein per kg of body weight daily."
+    }
+]
