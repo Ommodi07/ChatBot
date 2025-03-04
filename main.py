@@ -2,7 +2,6 @@ import os
 import pickle
 import faiss
 import gdown
-import torch
 from flask import Flask, request, jsonify
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -31,7 +30,7 @@ download_model()
 # Verify the downloaded file
 try:
     with open(MODEL_PATH, "rb") as f:
-        vectordb = pickle.load(f, map_location=torch.device('cpu'))  # Force loading on CPU
+        vectordb = pickle.load(f)  # No map_location
         print("Model file loaded successfully.")
 except Exception as e:
     print(f"Error loading model: {e}")
