@@ -1,9 +1,10 @@
 Flask
-pickle-mixin
 faiss-cpu
-langchain_groq
+gdown
+requests
 langchain
 langchain-community
 langchain-google-genai
-transformers
 torch
+transformers
+sentence-transformers
