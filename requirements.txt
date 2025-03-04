@@ -2,6 +2,7 @@ Flask
 faiss-cpu
 gdown
 requests
+langchain_groq
 langchain
 langchain-community
 langchain-google-genai
