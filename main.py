@@ -1,59 +1,49 @@
-import requests
+import os
 import pickle
 import faiss
+import gdown
+import requests
 from flask import Flask, request, jsonify
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import RetrievalQA
-import os
 
 app = Flask(__name__)
 
-# Google Drive file ID
-FILE_ID = "1q2PO9XUtKePArjemadwwpY6wK_w7IAzH"  # Replace with your actual Google Drive file ID
+# Google Drive file IDs
+MODEL_FILE_ID = "1q2PO9XUtKePArjemadwwpY6wK_w7IAzH"  # Replace with actual Google Drive file ID
+FAISS_INDEX_FILE = "faiss_index.index"
 MODEL_PATH = "model.pkl"
 
-# Function to download model from Google Drive
+# Function to download model file
 def download_model():
-    if os.path.exists(MODEL_PATH):  # Check if file already exists
+    if os.path.exists(MODEL_PATH):
         print("Model file already exists, skipping download.")
         return
-
+    
     print("Downloading model from Google Drive...")
-    
-    URL = f"https://drive.google.com/uc?export=download&id={FILE_ID}"
-    session = requests.Session()
-    response = session.get(URL, stream=True)
+    gdown.download(id=MODEL_FILE_ID, output=MODEL_PATH, quiet=False)
 
-    # Handle Google Drive warning for large files
-    for key, value in response.cookies.items():
-        if key.startswith("download_warning"):
-            URL = f"https://drive.google.com/uc?export=download&id={FILE_ID}&confirm={value}"
-            response = session.get(URL, stream=True)
-
-    # Save the downloaded file
-    with open(MODEL_PATH, "wb") as f:
-        for chunk in response.iter_content(chunk_size=1024 * 1024):  # 1MB chunks
-            if chunk:
-                f.write(chunk)
-    
-    print("Model downloaded successfully.")
-
-# Ensure model is downloaded
+# Download the model if not available
 download_model()
 
-# ✅ Verify if the downloaded file is valid
+# Verify the downloaded file
 try:
     with open(MODEL_PATH, "rb") as f:
         vectordb = pickle.load(f)
+        print("Model file loaded successfully.")
 except Exception as e:
     print(f"Error loading model: {e}")
     print("The downloaded file may be corrupted or not a valid pickle file.")
     exit(1)
 
 # Load FAISS Index
-index = faiss.read_index("faiss_index.index")
+if not os.path.exists(FAISS_INDEX_FILE):
+    print(f"Error: FAISS index file '{FAISS_INDEX_FILE}' not found.")
+    exit(1)
+
+index = faiss.read_index(FAISS_INDEX_FILE)
 
 # Load LLM
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
