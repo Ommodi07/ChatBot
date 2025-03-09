@@ -16,7 +16,7 @@ os.environ["GOOGLE_API_KEY"] = "AIzaSyCOsco3wW-yHA074FTp-Mbz8NgUptGUY_8"  # Repl
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 # Google Gemini LLM setup
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.7)
 
 # FAISS index path (stored on disk)
 FAISS_INDEX_PATH = "faiss_index"
