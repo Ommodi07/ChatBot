@@ -1,70 +1,48 @@
-import os
-import pickle
-import faiss
-import gdown
-import torch  # Import torch for model loading
 from flask import Flask, request, jsonify
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import FAISS
 from langchain.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import RetrievalQA
+from langchain_google_genai import GoogleGenerativeAI
+import os
 
 app = Flask(__name__)
 
-# Google Drive file IDs
-MODEL_FILE_ID = "1q2PO9XUtKePArjemadwwpY6wK_w7IAzH"  # Replace with actual Google Drive file ID
-FAISS_INDEX_FILE = "faiss_index.index"
-MODEL_PATH = "model.pkl"
+embeddings = HuggingFaceEmbeddings()
+GOOGLE_API_KEY = "AIzaSyCOsco3wW-yHA074FTp-Mbz8NgUptGUY_8"  # Replace with your actual API key
+llm = GoogleGenerativeAI(model='gemini-2.0-flash', temperature=0.7)
 
-# Function to download model file
-def download_model():
-    if os.path.exists(MODEL_PATH):
-        print("Model file already exists, skipping download.")
-        return
+vectordb = None
+PDF_PATH = "CirrhosisToolkit.pdf"
+
+def process_pdf(pdf_path):
+    global vectordb
+    loader = PyPDFLoader(pdf_path)
+    documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=100)
+    texts = text_splitter.split_documents(documents)
+    vectordb = FAISS.from_documents(texts, embeddings)
+
+process_pdf(PDF_PATH)
+
+@app.route('/query', methods=['POST'])
+def query_pdf():
+    global vectordb
+    if vectordb is None:
+        return jsonify({'error': 'No PDF processed yet'}), 400
     
-    print("Downloading model from Google Drive...")
-    gdown.download(id=MODEL_FILE_ID, output=MODEL_PATH, quiet=False)
-
-# Download the model if not available
-download_model()
-
-# Verify the downloaded file and load it on CPU
-try:
-    with open(MODEL_PATH, "rb") as f:
-        vectordb = torch.load(f, map_location=torch.device("cpu"))  # ✅ Load on CPU
-        print("Model file loaded successfully.")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    print("The downloaded file may be corrupted or not a valid pickle file.")
-    exit(1)
-
-# Load FAISS Index
-if not os.path.exists(FAISS_INDEX_FILE):
-    print(f"Error: FAISS index file '{FAISS_INDEX_FILE}' not found.")
-    exit(1)
-
-index = faiss.read_index(FAISS_INDEX_FILE)
-
-# Load LLM
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
-
-# Setup Retriever
-retriever = vectordb.as_retriever(search_kwargs={"k": 5})
-
-# Setup LangChain RetrievalQA
-qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
-
-@app.route('/ask', methods=['POST'])
-def ask():
-    data = request.json
-    query = data.get("question")
-
-    if not query:
-        return jsonify({"error": "No question provided"}), 400
-
-    # Get response from RAG model
-    result = qa_chain.run(query)
-    return jsonify({"answer": result})
+    data = request.get_json()
+    query_text = data.get("query", "")
+    if not query_text:
+        return jsonify({'error': 'No query provided'}), 400
+    
+    results = vectordb.similarity_search(query_text, k=3)
+    context = "\n".join([res.page_content for res in results])
+    
+    prompt = f"Using the following document context, answer the query concisely.\n\nContext:\n{context}\n\nQuery: {query_text}" 
+    gemini_response = llm(prompt)
+    
+    return jsonify({'response': gemini_response})
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(debug=True)
