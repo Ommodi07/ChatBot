@@ -1,11 +1,7 @@
-Flask
-faiss-cpu
-gdown
-requests
-langchain_groq
+flask
 langchain
-langchain-community
-langchain-google-genai
-torch
-transformers
-sentence-transformers
+langchain_huggingface
+langchain_community
+langchain_google_genai
+faiss-cpu
+google-generativeai
