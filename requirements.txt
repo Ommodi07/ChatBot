@@ -1,9 +1,9 @@
 flask
 langchain
-langchain-community
-langchain-huggingface
-langchain-google-genai
-faiss-cpu
+langchain_huggingface
+langchain_community
+langchain_google_genai
 sentence-transformers
+faiss-cpu
+torch
 pypdf
-google-generativeai

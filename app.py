@@ -1,37 +1,66 @@
 from flask import Flask, request, jsonify
-from langchain_groq import ChatGroq  
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_google_genai import ChatGoogleGenerativeAI
+import os
+import json
+import torch
 
 app = Flask(__name__)
 
-# Initialize the LLM
-llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
-    temperature=0,
-    groq_api_key="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"
-)
+# Set your Google API key
+os.environ["GOOGLE_API_KEY"] = "AIzaSyCOsco3wW-yHA074FTp-Mbz8NgUptGUY_8"  # Replace with your actual API key
 
-# Define function for chatbot response
-def generate_summary_and_quiz(question):
-    prompt = f"""
-    {question}
-    Based on the text above, answer the question.
-    You are a medical chatbot designed to help with health concerns related to liver cirrhosis and some basic medical questions.
-    If the question is out of this topic, respond with: "I am sorry, I can't help with this question."
-    """
+# Use a lightweight embedding model with quantization
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+# Google Gemini LLM setup
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.7)
+
+# FAISS index path (stored on disk)
+FAISS_INDEX_PATH = "faiss_index"
+PDF_PATH = "CirrhosisToolkit.pdf"
+
+def process_pdf(pdf_path):
+    """Processes the PDF and stores FAISS index on disk."""
+    loader = PyPDFLoader(pdf_path)
+    documents = loader.load()  # Load only when needed
     
-    response = llm.invoke(prompt)
-    return response.content
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=30)
+    texts = text_splitter.split_documents(documents)
+    
+    vectordb = FAISS.from_documents(texts, embeddings)
+    vectordb.save_local(FAISS_INDEX_PATH)
 
-# Define Flask route
-@app.route("/chat", methods=["POST"])
-def chat():
+# Load FAISS index if available, else process the PDF
+if os.path.exists(FAISS_INDEX_PATH):
+    vectordb = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
+else:
+    process_pdf(PDF_PATH)
+    vectordb = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
+
+@app.route('/query', methods=['POST'])
+def query_pdf():
+    """Handles user queries and retrieves relevant document context."""
+    if vectordb is None:
+        return jsonify({'error': 'No PDF processed yet'}), 400
+    
     data = request.get_json()
-    question = data.get("question", "")
-    if not question:
-        return jsonify({"error": "Question is required"}), 400
+    query_text = data.get("query", "").strip()
+    if not query_text:
+        return jsonify({'error': 'No query provided'}), 400
     
-    answer = generate_summary_and_quiz(question)
-    return jsonify({"response": answer})
+    # Perform similarity search with reduced results (k=2) to save memory
+    results = vectordb.similarity_search(query_text, k=2)
+    context = "\n".join([res.page_content[:1000] for res in results])  # Trim context to 1000 chars
+    
+    # Generate response with Gemini
+    prompt = f"Use the following document context to answer the query concisely.\n\nContext:\n{context}\n\nQuery: {query_text}"
+    gemini_response = llm.invoke(prompt)
+    
+    return jsonify({'response': gemini_response.content})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
