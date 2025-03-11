@@ -69,7 +69,7 @@ def query_pdf():
     context = "\n".join([res.page_content[:500] for res in results])  # Trim context to 500 chars
     
     # Generate response with Gemini
-    prompt = f"Use the following document context to answer the query concisely.\n\nContext:\n{context}\n\nQuery: {query_text}"
+    prompt = f"Use the following information to answer the query concisely.\n\nContext:\n{context}\n\nQuery: {query_text}"
     gemini_response = llm.invoke(prompt)
     
     del results, context  # Free memory
