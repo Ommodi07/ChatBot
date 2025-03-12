@@ -7,10 +7,12 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 import json
 import torch
+from dotenv import load_dotenv
 import gc
 
 app = Flask(__name__)
 
+load_dotenv()
 # Retrieve Google API key from environment variable
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
