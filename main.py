@@ -11,14 +11,16 @@ import gc
 
 app = Flask(__name__)
 
-# Set your Google API key
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCOsco3wW-yHA074FTp-Mbz8NgUptGUY_8"  # Replace with your actual API key
+# Retrieve Google API key from environment variable
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY environment variable is not set")
 
 # Use a more memory-efficient embedding model
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-MiniLM-L3-v2")
 
 # Google Gemini LLM setup
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.7)
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.7, google_api_key=GOOGLE_API_KEY)
 
 # FAISS index path (stored on disk)
 FAISS_INDEX_PATH = "faiss_index"
@@ -69,7 +71,11 @@ def query_pdf():
     context = "\n".join([res.page_content[:500] for res in results])  # Trim context to 500 chars
     
     # Generate response with Gemini
-    prompt = f"Learn the context properyly and answer the query as you are the healthcare chatbot.\n\nContext:\n{context}\n\nQuery: {query_text}"
+    prompt = f"""Context:{context}
+                Learn the context properly and answer the query in 2-3 lines as you are the healthcare chatbot.
+                you can reply for greeting msg but not other than that.
+                Query: {query_text}
+                if you don't know the answer then you can say "i can't help you with that." """
     gemini_response = llm.invoke(prompt)
     
     del results, context  # Free memory
