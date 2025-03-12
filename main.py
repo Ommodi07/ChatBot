@@ -24,7 +24,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.7, goo
 
 # FAISS index path (stored on disk)
 FAISS_INDEX_PATH = "faiss_index"
-PDF_PATH = "CirrhosisToolkit.pdf"
+PDF_PATH = "merged_cirrhosis.pdf"
 
 def process_pdf(pdf_path):
     """Processes the PDF and stores FAISS index on disk."""
