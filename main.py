@@ -14,8 +14,7 @@ app = Flask(__name__)
 
 load_dotenv()
 # Retrieve Google API key from environment variable
-# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GOOGLE_API_KEY = "AIzaSyCOsco3wW-yHA074FTp-Mbz8NgUptGUY_8"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
     raise ValueError("GOOGLE_API_KEY environment variable is not set")
 
