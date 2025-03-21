@@ -14,7 +14,8 @@ app = Flask(__name__)
 
 load_dotenv()
 # Retrieve Google API key from environment variable
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = "AIzaSyCOsco3wW-yHA074FTp-Mbz8NgUptGUY_8"
 if not GOOGLE_API_KEY:
     raise ValueError("GOOGLE_API_KEY environment variable is not set")
 
@@ -26,14 +27,14 @@ llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.7, goo
 
 # FAISS index path (stored on disk)
 FAISS_INDEX_PATH = "faiss_index"
-PDF_PATH = "merged_cirrhosis.pdf"
+PDF_PATH = "document.pdf"
 
 def process_pdf(pdf_path):
     """Processes the PDF and stores FAISS index on disk."""
     loader = PyPDFLoader(pdf_path)
-    documents = loader.load()  # Load only when needed
+    documents = loader.load()
     
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=30)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     texts = text_splitter.split_documents(documents)
     
     vectordb = FAISS.from_documents(texts, embeddings)
@@ -58,7 +59,7 @@ def get_vectordb():
 
 @app.route('/query', methods=['POST'])
 def query_pdf():
-    """Handles user queries and retrieves relevant document context."""
+    """Handles user queries and retrieves the entire document as context."""
     vectordb = get_vectordb()
     if vectordb is None:
         return jsonify({'error': 'No PDF processed yet'}), 400
@@ -68,19 +69,19 @@ def query_pdf():
     if not query_text:
         return jsonify({'error': 'No query provided'}), 400
     
-    # Perform similarity search with reduced results (k=2) to save memory
-    results = vectordb.similarity_search(query_text, k=2)
-    context = "\n".join([res.page_content[:500] for res in results])  # Trim context to 500 chars
+    # Retrieve all document content
+    results = vectordb.similarity_search(query_text, k=10)  # Adjust k as needed
+    full_context = [res.page_content for res in results]
     
     # Generate response with Gemini
-    prompt = f"""Context:{context}
-                Learn the context properly and answer the query in 2-3 lines as you are the healthcare chatbot.
-                you can reply for greeting msg but not other than that.
-                Query: {query_text}
-                if you don't know the answer then you can say "i can't help you with that." """
+    prompt = f"""Context: {full_context}
+                Learn the context properly and answer the query concisely as you are a healthcare chatbot.
+                You can reply to greetings but should stick to healthcare-related responses.
+                Question: {query_text}
+                If you don't know the answer, you can say 'I can't help you with that.'"""
     gemini_response = llm.invoke(prompt)
     
-    del results, context  # Free memory
+    del results, full_context  # Free memory
     gc.collect()
     
     return jsonify({'response': gemini_response.content})
