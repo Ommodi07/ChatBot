@@ -3,9 +3,11 @@ import tensorflow as tf
 import cv2
 from PIL import Image, ImageOps
 import os
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
+import shutil
 
-app = Flask(__name__)
+app = FastAPI()
 
 # Load the U-Net model
 model = tf.keras.models.load_model("t2_unet_model.keras")
@@ -78,27 +80,39 @@ def segment_image(image_path, output_path):
         # Save the overlaid image
         result_image.save(output_path)
         print(f"Overlaid image saved to: {output_path}")
+        return True
         
     except Exception as e:
         print(f"Error processing image: {str(e)}")
+        return False
 
-@app.route('/predict_mask', methods=['POST'])
-def predict_mask():
+@app.post("/predict_mask")
+async def predict_mask(image: UploadFile = File(...)):
     try:
-        image = request.files['image']
-        print(request)
-        image.save('api/inputs/input.png')
-        segment_image('api/inputs/input.png', 'api/outputs/output.png')
-        return jsonify({'message': 'success'})
+        # Create directories if they don't exist
+        os.makedirs("api/inputs", exist_ok=True)
+        os.makedirs("api/outputs", exist_ok=True)
+        
+        # Save uploaded file
+        input_path = "api/inputs/input.png"
+        with open(input_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+        
+        success = segment_image(input_path, 'api/outputs/output.png')
+        if success:
+            return JSONResponse(content={"message": "success"})
+        else:
+            return JSONResponse(content={"message": "processing failed"}, status_code=500)
     except Exception as e:
-        return jsonify({'message': str(e)})
-    
-@app.route('/get_mask', methods=['GET'])
-def get_mask():
-    try:
-        return jsonify({'message': "hello"})
-    except Exception as e:
-        return jsonify({'message': str(e)})
+        return JSONResponse(content={"message": str(e)}, status_code=500)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.get("/admin")
+async def get_mask():
+    try:
+        return {"message": "hello"}
+    except Exception as e:
+        return JSONResponse(content={"message": str(e)}, status_code=500)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
