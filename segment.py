@@ -1,0 +1,104 @@
+import numpy as np
+import tensorflow as tf
+import cv2
+from PIL import Image, ImageOps
+import os
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Load the U-Net model
+model = tf.keras.models.load_model("t2_unet_model.keras")
+
+def create_overlay(original_image, mask, color=(209, 59, 59, 128)):  # Yellow with 50% transparency
+    # Convert original image to RGBA if it isn't already
+    if original_image.mode != 'RGBA':
+        original_image = original_image.convert('RGBA')
+    
+    # Create a yellow overlay mask
+    overlay = Image.new('RGBA', original_image.size, (0, 0, 0, 0))
+    for x in range(mask.shape[1]):
+        for y in range(mask.shape[0]):
+            if mask[y, x] > 0:
+                overlay.putpixel((x, y), color)
+    
+    # Combine the original image with the overlay
+    return Image.alpha_composite(original_image, overlay)
+
+def preprocess_image(image):
+    # Resize to match model input shape
+    image = image.resize((128, 128))
+    # Convert to numpy array and normalize
+    image = np.array(image) / 255.0
+    # Convert RGB to grayscale
+    if len(image.shape) == 3:
+        image = np.mean(image, axis=-1)
+    # Reshape to match model's expected input shape (None, 128, 128, 64, 1)
+    image = np.expand_dims(image, axis=0)  # Add batch dimension
+    image = np.expand_dims(image, axis=-1)  # Add channel dimension
+    image = np.repeat(image, 64, axis=3)    # Repeat 64 times for the required depth
+    image = np.expand_dims(image, axis=-1)  # Add final singleton dimension
+    return image
+
+def postprocess_mask(mask):
+    # Take maximum across the 64 channels
+    mask = np.max(mask, axis=3)
+    mask = (mask > 0.5).astype(np.uint8) * 255  # Threshold and scale to 0-255
+    mask = np.squeeze(mask)  # Remove extra dimensions
+    return mask
+
+def segment_image(image_path, output_path):
+    try:
+        # Create output directory if it doesn't exist
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Load and process image
+        original_image = Image.open(image_path).convert('RGB')
+        # Preserve original size for later
+        original_size = original_image.size
+        
+        processed_image = preprocess_image(original_image)
+        print(f"Preprocessed image shape: {processed_image.shape}")
+        
+        # Get segmentation mask from model
+        prediction = model.predict(processed_image, verbose=0)
+        print(f"Model prediction shape: {prediction.shape}")
+        
+        mask = postprocess_mask(prediction)
+        print(f"Final mask shape: {mask.shape}")
+        
+        # Resize mask to match original image size
+        mask_image = Image.fromarray(mask)
+        mask_image = mask_image.resize(original_size, Image.Resampling.NEAREST)
+        mask = np.array(mask_image)
+        
+        # Create overlay
+        result_image = create_overlay(original_image, mask)
+        
+        # Save the overlaid image
+        result_image.save(output_path)
+        print(f"Overlaid image saved to: {output_path}")
+        
+    except Exception as e:
+        print(f"Error processing image: {str(e)}")
+
+@app.route('/predict_mask', methods=['POST'])
+def predict_mask():
+    try:
+        image = request.files['image']
+        print(request)
+        image.save('api/inputs/input.png')
+        segment_image('api/inputs/input.png', 'api/outputs/output.png')
+        return jsonify({'message': 'success'})
+    except Exception as e:
+        return jsonify({'message': str(e)})
+    
+@app.route('/get_mask', methods=['GET'])
+def get_mask():
+    try:
+        return jsonify({'message': "hello"})
+    except Exception as e:
+        return jsonify({'message': str(e)})
+
+if __name__ == '__main__':
+    app.run(debug=True)
