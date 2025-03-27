@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mri Segmentation</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .upload-form {
+                border: 2px dashed #ccc;
+                padding: 20px;
+                text-align: center;
+                margin: 20px 0;
+                border-radius: 8px;
+            }
+            .submit-btn {
+                background-color: #4CAF50;
+                color: white;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 15px;
+                font-size: 16px;
+                transition: background-color 0.3s;
+            }
+            .submit-btn:hover {
+                background-color: #45a049;
+            }
+            .image-container {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 20px;
+                gap: 20px;
+            }
+            .image-box {
+                flex: 1;
+                text-align: center;
+                padding: 10px;
+                background-color: #f8f8f8;
+                border-radius: 4px;
+            }
+            .image-box img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 4px;
+            }
+            .image-box h3 {
+                margin: 10px 0;
+                color: #333;
+            }
+            #preview, #result {
+                max-width: 100%;
+                margin-top: 10px;
+                border-radius: 4px;
+                display: none;
+            }
+            .file-input {
+                margin: 10px 0;
+            }
+            h1 {
+                color: #333;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+        </style>
+    </head>
+    
+<body>
+    <div class="container">
+        <h1>Liver Segmentation</h1>
+        
+        {% if error %}
+        <div class="error-message" style="color: red; text-align: center; margin: 10px 0;">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="upload-form">
+            <form method="post" enctype="multipart/form-data">
+                <input type="file" name="file" accept="image/*" onchange="previewImage(event)" class="file-input"><br>
+                <input type="submit" value="Process Image" class="submit-btn">
+            </form>
+        </div>
+
+        <div class="image-container">
+            <div class="image-box">
+                <h3>Original Image</h3>
+                {% if original_image %}
+                    <img id="preview" src="data:image/png;base64,{{ original_image }}" style="display: block;">
+                {% else %}
+                    <img id="preview" alt="Image preview" style="display: none;">
+                {% endif %}
+            </div>
+            <div class="image-box">
+                <h3>Segmented Result</h3>
+                {% if result_image %}
+                    <img id="result" src="data:image/png;base64,{{ result_image }}" style="display: block;">
+                {% else %}
+                    <img id="result" alt="Processed result" style="display: none;">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                    // Hide result when new image is selected
+                    document.getElementById('result').style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>

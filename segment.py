@@ -113,10 +113,6 @@ async def get_mask():
     except Exception as e:
         return JSONResponse(content={"message": str(e)}, status_code=500)
 
-# ...existing code...
-
-# At the end of the file, replace the if __name__ == "__main__": block with:
-
 if __name__ == "__main__":
     import uvicorn
     import argparse
