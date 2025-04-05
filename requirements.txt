@@ -1,9 +1,0 @@
-flask
-langchain
-langchain_huggingface
-langchain_community
-langchain_google_genai
-sentence-transformers
-faiss-cpu
-torch
-pypdf

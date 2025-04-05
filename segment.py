@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from keras.models import load_model
 import cv2
 from PIL import Image, ImageOps
 import os
@@ -9,10 +10,9 @@ import shutil
 
 app = FastAPI()
 
-# Load the U-Net model
-model = tf.keras.models.load_model("t2_unet_model.keras")
+model = load_model("unet_3d_model.h5")
 
-def create_overlay(original_image, mask, color=(209, 59, 59, 128)):  # Yellow with 50% transparency
+def create_overlay(original_image, mask, color=(255, 255, 0, 128)):  # Yellow with 50% transparency
     # Convert original image to RGBA if it isn't already
     if original_image.mode != 'RGBA':
         original_image = original_image.convert('RGBA')
@@ -62,7 +62,7 @@ def segment_image(image_path, output_path):
         processed_image = preprocess_image(original_image)
         print(f"Preprocessed image shape: {processed_image.shape}")
         
-        # Get segmentation mask from model
+        print("Model loaded successfully.")
         prediction = model.predict(processed_image, verbose=0)
         print(f"Model prediction shape: {prediction.shape}")
         
@@ -98,9 +98,17 @@ async def predict_mask(image: UploadFile = File(...)):
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
         
-        success = segment_image(input_path, 'api/outputs/output.png')
+        output_path = 'api/outputs/output.png'
+        success = segment_image(input_path, output_path)
+        
         if success:
-            return JSONResponse(content={"message": "success"})
+            # return JSONResponse(content={"message": "Report generated successfully"})
+            with open(output_path, "rb") as image_file:
+                import base64
+                encoded_image = base64.b64encode(image_file.read()).decode()
+                return JSONResponse(content={
+                    "message": encoded_image
+                })
         else:
             return JSONResponse(content={"message": "processing failed"}, status_code=500)
     except Exception as e:
@@ -125,7 +133,6 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    # Configure uvicorn with reload for development
     uvicorn.run(
         "segment:app",
         host=args.host,
