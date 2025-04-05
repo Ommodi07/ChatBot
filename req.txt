@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+numpy
+tensorflow==2.14.0
+opencv-python
+Pillow
+python-jose
+pydantic
+starlette
