@@ -4,7 +4,8 @@ langchain-community
 langchain-huggingface
 langchain-google-genai
 huggingface-hub
-sentence-transformers
+sentence-transformers==2.2.2
+transformers==4.31.0
 faiss-cpu
 torch
 python-dotenv

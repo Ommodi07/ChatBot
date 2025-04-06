@@ -1,0 +1,45 @@
+{
+    "questions_and_answers" : [
+      {
+        "question": "What is liver cirrhosis?",
+        "answer": "Liver cirrhosis is scarring of the liver caused by long-term damage. It replaces healthy liver cells with stiff scar tissue, leading to liver dysfunction."
+      },
+      {
+        "question": "What are the common causes of liver cirrhosis?",
+        "answer": "The main causes include chronic hepatitis B and C infections, long-term alcohol consumption, fatty liver disease (linked to obesity and diabetes), autoimmune hepatitis, certain medications, and environmental toxins."
+      },
+      {
+        "question": "Why is cirrhosis dangerous?",
+        "answer": "Cirrhosis hardens the liver, making blood flow difficult, leading to complications like portal hypertension, internal bleeding, liver failure, and toxin buildup in the body."
+      },
+      {
+        "question": "What are the symptoms of liver cirrhosis?",
+        "answer": "Early-stage (compensated) cirrhosis may have no symptoms. In later stages (decompensated), symptoms include fatigue, poor appetite, jaundice, confusion (encephalopathy), swollen belly (ascites), and internal bleeding (varices)."
+      },
+      {
+        "question": "What is hepatic encephalopathy?",
+        "answer": "It is a condition where toxins (like ammonia) build up in the brain due to poor liver function, causing confusion, poor sleep, mood changes, and in severe cases, coma."
+      },
+      {
+        "question": "What are varices, and why are they dangerous?",
+        "answer": "Varices are swollen veins in the esophagus or stomach due to high blood pressure in the liver. They can rupture and cause life-threatening bleeding."
+      },
+      {
+        "question": "What should I do if I vomit blood or notice black, tarry stools?",
+        "answer": "This is a medical emergency. Go to the hospital immediately, as it may indicate variceal bleeding."
+      },
+      {
+        "question": "How can liver cirrhosis be managed?",
+        "answer": "While cirrhosis is irreversible, its progression can be slowed by avoiding alcohol, maintaining a healthy diet, taking prescribed medications, and undergoing regular liver cancer screenings."
+      },
+      {
+        "question": "What diet should someone with cirrhosis follow?",
+        "answer": "A high-protein, low-sodium diet is recommended to maintain muscle mass and reduce fluid buildup (ascites). Frequent small meals help prevent muscle loss."
+      },
+      {
+        "question": "What medications are commonly used for cirrhosis management?",
+        "answer": "• Lactulose & Rifaximin – Prevent encephalopathy\n• Diuretics (Spironolactone,...)"
+      }
+    ]
+  }
+  
