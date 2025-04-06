@@ -6,7 +6,11 @@ from PIL import Image, ImageOps
 import os
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 import shutil
+from fpdf import FPDF
+from datetime import date
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -102,23 +106,105 @@ async def predict_mask(image: UploadFile = File(...)):
         success = segment_image(input_path, output_path)
         
         if success:
-            # return JSONResponse(content={"message": "Report generated successfully"})
-            with open(output_path, "rb") as image_file:
-                import base64
-                encoded_image = base64.b64encode(image_file.read()).decode()
-                return JSONResponse(content={
-                    "message": encoded_image
-                })
+            return FileResponse(output_path, media_type="image/png")
         else:
-            return JSONResponse(content={"message": "processing failed"}, status_code=500)
+            return FileResponse(input_path, media_type="image/png")
     except Exception as e:
-        return JSONResponse(content={"message": str(e)}, status_code=500)
+        return FileResponse(input_path, media_type="image/png")
+    
+def generate_pdf(name, age, gender, contact, image_path):
+    try:
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
+        dt = date.today()
+        pdf.set_font("Arial", style='B', size=16)
+        pdf.cell(200, 10, "ENVISION-MRI REPORT", ln=True, align='C')
+        pdf.ln(10)
+        
+        # Add a border box
+        pdf.set_line_width(0.5)
+        pdf.rect(5, 5, 200, 287)
+        
+        # Patient Details
+        pdf.set_font("Arial", style='B', size=12)
+        pdf.cell(0, 10, "Patient Information:", ln=True, align='L')
+        pdf.set_font("Arial", size=12)
+        pdf.cell(0, 8, f"Name: {name}", ln=True)
+        pdf.cell(0, 8, f"Age: {age}", ln=True)
+        pdf.cell(0, 8, f"Contact: {contact}", ln=True)
+        pdf.multi_cell(0, 8, f"Gender: {gender}")
+        pdf.ln(5)
+        
+        # Radiologist Details
+        pdf.set_font("Arial", style='B', size=12)
+        pdf.cell(0, 10, "Radiologist Information:", ln=True, align='L')
+        pdf.set_font("Arial", size=12)
+        pdf.cell(0, 8, "Radiologist's Name: OM MODI", ln=True)
+        pdf.cell(0, 8, "Signature: OM", ln=True)
+        pdf.cell(0, 8, f"Date: {dt}", ln=True)
+        pdf.ln(10)
+        
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, "Thank you for using ENVISION-MRI. We hope you find this report helpful.")
+        pdf.ln(10)
+        
+        # Process the image and get segmentation result
+        with open(image_path, 'rb') as img_file:
+            result_io = segment_image(img_file)
+            
+            if result_io:
+                pdf.add_page()
+                pdf.set_font("Arial", style='B', size=14)
+                pdf.cell(0, 10, "Segmentation Result:", ln=True, align='C')
+                pdf.ln(5)
+                
+                # Save the segmented image temporarily
+                temp_image_path = "temp_segmented.png"
+                with open(temp_image_path, "wb") as f:
+                    f.write(result_io.getvalue())
+                
+                # Add the segmented image to PDF
+                pdf.image(temp_image_path, x=10, y=pdf.get_y(), w=190)
+                
+                # Remove temporary image
+                os.remove(temp_image_path)
+            else:
+                pdf.set_font("Arial", style='B', size=12)
+                pdf.cell(0, 10, "Error: Could not process the X-ray image", ln=True, align='C')
+        
+        # Save the PDF
+        output_pdf = f"Report_{name.replace(' ', '_')}.pdf"
+        pdf.output(output_pdf)
+        print(f"PDF report generated successfully as {output_pdf}")
+        return output_pdf
+        
+    except Exception as e:
+        print(f"Error generating PDF: {str(e)}")
+        return None
+
+class ReportRequest(BaseModel):
+    name: str
+    age: int
+    gender: str
+    contact: str
+
+@app.get("/download_report")
+async def download_report(data : ReportRequest):
+    try:
+        pdf = generate_pdf(data.name,data.age,data.gender,data.contact,"api/outputs/output.png")
+        return FileResponse(pdf, media_type="application/pdf", filename="Report.pdf")
+    except FileNotFoundError:
+        return JSONResponse(content={"message" : "File not found"}, status_code=404)
+    except Exception as e:
+        return JSONResponse(content={"message" : "something wrong with pdf generation"}, status_code=500)
 
 @app.get("/admin")
 async def get_mask():
     try:
         return {"message": "hello"}
     except Exception as e:
+        print(f"Error: yoooo {str(e)}")
         return JSONResponse(content={"message": str(e)}, status_code=500)
 
 if __name__ == "__main__":
